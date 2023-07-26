@@ -31,11 +31,28 @@ func listStudentsHandler(ctx *gin.Context) {
 	})
 }
 
+func createStudentsHandler(ctx *gin.Context) {
+	ctx.Header("Content-type", "application/json")
+	var student Student
+	if err := ctx.BindJSON(&student); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "could not get payload",
+		})
+		return
+	}
+	student.ID = Students[len(Students)-1].ID + 1
+	Students = append(Students, student)
+	ctx.JSON(http.StatusCreated, gin.H{
+		"data": student,
+	})
+}
+
 func getRoutes(gin *gin.Engine) *gin.Engine {
 	gin.GET("/heart", hearthHandler)
 	studentsGroupV1 := gin.Group("/api/v1")
 	{
 		studentsGroupV1.GET("/student", listStudentsHandler)
+		studentsGroupV1.POST("/student", createStudentsHandler)
 	}
 
 	return gin
