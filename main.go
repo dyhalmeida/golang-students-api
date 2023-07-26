@@ -3,20 +3,21 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
+	"github.com/dyhalmeida/golang-students-api/shared"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type Student struct {
-	ID       int    `json:"id"`
-	Fullname string `json:"fullname"`
-	Age      int64  `json:"age"`
+	ID       uuid.UUID `json:"id"`
+	Fullname string    `json:"fullname"`
+	Age      int64     `json:"age"`
 }
 
 var Students = []Student{
-	Student{ID: 1, Fullname: "Diego", Age: 31},
-	Student{ID: 2, Fullname: "Mayara", Age: 28},
+	{ID: shared.GetID(), Fullname: "Diego", Age: 31},
+	{ID: shared.GetID(), Fullname: "Mayara", Age: 28},
 }
 
 func hearthHandler(ctx *gin.Context) {
@@ -36,10 +37,11 @@ func listStudentsHandler(ctx *gin.Context) {
 func showStudentsHandler(ctx *gin.Context) {
 	ctx.Header("Content-type", "application/json")
 
-	id, err := strconv.Atoi(ctx.Param("id"))
+	paramId := ctx.Param("id")
+	id, err := shared.GetIDByString(paramId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": fmt.Errorf("param: %d (type: %s) is required", id, "router parameter"),
+			"message": fmt.Sprintf("param: %s (type: %s) is required or invalid uuid", paramId, "router parameter"),
 		})
 		return
 	}
@@ -54,7 +56,7 @@ func showStudentsHandler(ctx *gin.Context) {
 
 	if student == nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": "student with id: " + strconv.Itoa(id) + " not found",
+			"message": fmt.Errorf("student with id: %s not found", id),
 		})
 		return
 	}
@@ -74,7 +76,7 @@ func createStudentsHandler(ctx *gin.Context) {
 		})
 		return
 	}
-	student.ID = Students[len(Students)-1].ID + 1
+	student.ID = shared.GetID()
 	Students = append(Students, student)
 	ctx.JSON(http.StatusCreated, gin.H{
 		"data": student,
@@ -84,10 +86,11 @@ func createStudentsHandler(ctx *gin.Context) {
 func updateStudentsHandler(ctx *gin.Context) {
 	ctx.Header("Content-type", "application/json")
 
-	id, err := strconv.Atoi(ctx.Param("id"))
+	paramId := ctx.Param("id")
+	id, err := shared.GetIDByString(paramId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": fmt.Errorf("param: %d (type: %s) is required", id, "router parameter"),
+			"message": fmt.Sprintf("param: %s (type: %s) is required or invalid uuid", paramId, "router parameter"),
 		})
 		return
 	}
@@ -124,7 +127,7 @@ func updateStudentsHandler(ctx *gin.Context) {
 
 	if studentFound == nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": "student with id: " + strconv.Itoa(id) + " not found",
+			"message": fmt.Sprintf("student with id: %s not found", paramId),
 		})
 		return
 	}
@@ -149,10 +152,11 @@ func updateStudentsHandler(ctx *gin.Context) {
 func deleteStudentsHandler(ctx *gin.Context) {
 	ctx.Header("Content-type", "application/json")
 
-	id, err := strconv.Atoi(ctx.Param("id"))
+	paramId := ctx.Param("id")
+	id, err := shared.GetIDByString(paramId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": fmt.Errorf("param: %d (type: %s) is required", id, "router parameter"),
+			"message": fmt.Sprintf("param: %s (type: %s) is required or invalid uuid", paramId, "router parameter"),
 		})
 		return
 	}
@@ -169,7 +173,7 @@ func deleteStudentsHandler(ctx *gin.Context) {
 
 	if indexFound == -1 {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": "student with id: " + strconv.Itoa(id) + " not found",
+			"message": fmt.Errorf("student with id: %s not found", id),
 		})
 		return
 	}
