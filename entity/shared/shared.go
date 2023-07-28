@@ -8,10 +8,10 @@ func GetID() uuid.UUID {
 	return uuid.New()
 }
 
-func GetIDByString(s string) (uuid.UUID, error) {
+func GetIDByString(s string) (string, error) {
 	id, err := uuid.Parse(s)
 	if err != nil {
-		return id, err
+		return id.String(), err
 	}
-	return id, nil
+	return id.String(), nil
 }
