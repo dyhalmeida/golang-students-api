@@ -8,8 +8,9 @@ import (
 func (s *ServiceApi) GetRoutes() {
 	s.Engine.GET("/heart", infra_controller.HeartHandler)
 
-	studentGroupV1 := s.Engine.Group("student")
+	studentGroupV1 := s.Engine.Group("/api/v1")
 	{
-		studentGroupV1.GET("/", student_controller.List)
+		studentGroupV1.GET("/student", student_controller.List)
+		studentGroupV1.POST("/student", student_controller.Create)
 	}
 }
