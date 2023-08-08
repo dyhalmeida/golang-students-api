@@ -13,5 +13,6 @@ func (s *ServiceApi) GetRoutes() {
 		studentGroupV1.GET("/student", student_controller.List)
 		studentGroupV1.POST("/student", student_controller.Create)
 		studentGroupV1.PUT("/student/:id", student_controller.Update)
+		studentGroupV1.DELETE("/student/:id", student_controller.Delete)
 	}
 }
