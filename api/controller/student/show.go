@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/dyhalmeida/golang-students-api/api/controller"
-	"github.com/dyhalmeida/golang-students-api/entity"
 	"github.com/dyhalmeida/golang-students-api/entity/shared"
+	student_usecase "github.com/dyhalmeida/golang-students-api/usecases/student"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,16 +20,9 @@ func Show(ctx *gin.Context) {
 		return
 	}
 
-	var student *entity.Student
-	for _, s := range entity.Students {
-		if s.ID == UUID {
-			student = &s
-			break
-		}
-	}
-
-	if student == nil {
-		ctx.JSON(http.StatusNotFound, controller.NewResponseMessageError(fmt.Sprintf("student with id: %s not found", UUID)))
+	student, err := student_usecase.ShowStudentByID(UUID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, controller.NewResponseMessageError(err.Error()))
 		return
 	}
 
