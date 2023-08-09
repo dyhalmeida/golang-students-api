@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/dyhalmeida/golang-students-api/api/controller"
-	"github.com/dyhalmeida/golang-students-api/entity"
 	"github.com/dyhalmeida/golang-students-api/entity/shared"
+	student_usecase "github.com/dyhalmeida/golang-students-api/usecases/student"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,23 +21,11 @@ func Delete(ctx *gin.Context) {
 		return
 	}
 
-	indexStudentFound := -1
-	var student *entity.Student
-
-	for i, s := range entity.Students {
-		if s.ID == UUID {
-			student = &s
-			indexStudentFound = i
-			break
-		}
-	}
-
-	if indexStudentFound == -1 {
-		ctx.JSON(http.StatusNotFound, controller.NewResponseMessageError(fmt.Sprintf("student with id: %s not found", UUID)))
+	student, err := student_usecase.DeleteStudentByID(UUID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, controller.NewResponseMessageError(err.Error()))
 		return
 	}
-
-	entity.Students = append(entity.Students[:indexStudentFound], entity.Students[indexStudentFound+1:]...)
 
 	ctx.JSON(http.StatusOK, student)
 }
